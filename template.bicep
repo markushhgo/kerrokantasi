@@ -85,14 +85,63 @@ param apiAppSettings object = {
 
 param uiAppSettings object = {
   KERROKANTASI_API_BASE: apiUrl
-  HERO_IMAGE_URL: 'http://materialbank.myhelsinki.fi/detail/1192/download/7'
+  HERO_IMAGE_URL: 'https://www.turku.fi/sites/default/files/thumbnails/image/kesarauha.jpg'
   PUBLIC_URL: uiUrl
   EXPRESSJS_SESSION_SECRET: expressJsSessionSecret
   OPENID_CLIENT_ID: openIdClientId
   OPENID_AUDIENCE: openIdAudience
   OPENID_AUTHORITY: openIdAuthority
   OPENID_APITOKEN_URL: openIdApiTokenUrl
-  CITY_CONFIG: 'cities/helsinki'
+  CITY_CONFIG: 'kerrokantasi-ui-turku'
+  SHOW_ACCESSIBILITY_INFO: 'true'
+  SHOW_SOCIAL_MEDIA_SHARING: 'false'
+  ENABLE_HIGHCONTRAST: 'true'
+  ENABLE_COOKIES: 'true'
+  ENABLE_COOKIEBOT: 'true'
+  COOKIEBOT_DATA_CBID: '92860cd1-d931-4496-8621-2adb011dafb0'
+  ADMIN_HELP_URL: 'https://www.turku.fi/kerrokantasi-ohjeistus'
+  ENABLE_STRONG_AUTH: 'true'
+  ENABLE_RESPONSE_COMPRESSION: 'true'
+  WMS_BASE_URL: 'https://opaskartta.turku.fi/TeklaOGCWeb/WMS.ashx'
+  WMS_ATTRIBUTION: '<a href=\'https://opaskartta.turku.fi/\' rel=\'noreferrer\' target=\'_blank\'>Opaskartta</a>'
+
+  /* TODO: config_x.toml has these array values that the frontend loads with nconf. They can presumably be set using env variables. Determine the format.
+  [[wms_layers]]
+  layer_name="Asemakaava"
+  name_fi="Kaavakartta"
+  name_sv="Stadsplankarta"
+  name_en="Cityplan"
+
+  [[wms_layers]]
+  layer_name="Opaskartta"
+  name_fi="Opaskartta"
+  name_sv="Guidekarta"
+  name_en="Guidemap"
+
+  [[wms_layers]]
+  layer_name="Opaskartta mv"
+  name_fi="Opaskartta mv"
+  name_sv="Guidekarta s/v"
+  name_en="Guidemap b/w"
+
+  [[wms_layers]]
+  layer_name="Ilmakuva"
+  name_fi="Ilmakuva"
+  name_sv="Flygbild"
+  name_en="Air photo"
+
+  [[wms_layers]]
+  layer_name="Maastokartta"
+  name_fi="Maastokartta"
+  name_sv="Terrängkarta"
+  name_en="Terrain map"
+
+  [[wms_layers]]
+  layer_name="Turun kantakartta 1:1000"
+  name_fi="Turun kantakartta 1:1000"
+  name_sv="Turun kantakartta 1:1000"
+  name_en="Turun kantakartta 1:1000"
+  */
 }
 
 @allowed([
