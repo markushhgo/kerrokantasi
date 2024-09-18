@@ -13,4 +13,6 @@ uwsgi:
   # chunked-input-limit: 10485760
   buffer-size: 32768
   http: :8000
-  static-map: /static=/srv/static
+  static-map: /static=/var/www/kerrokantasi-back/var/static
+  static-map: /media=/var/www/kerrokantasi-back/var/media
+  static-map: /protected_media=/var/www/kerrokantasi-back/var/protected_media
