@@ -1,4 +1,5 @@
 param location string = resourceGroup().location
+param utcNowValue string = utcNow()
 param apiImageName string
 param apiUrl string
 @description('API WebApp name. Must be globally unique')
@@ -58,13 +59,13 @@ param apiAppSettings object = {
   SECURE_PROXY_SSL_HEADER: 'HTTP_X_FORWARDED_PROTO,https'
   MEDIA_ROOT: '/var/www/kerrokantasi-back/var/media'
   STATIC_ROOT: '/var/www/kerrokantasi-back/var/static'
+  PROTECTED_ROOT: '/var/www/kerrokantasi-back/var/protected_media'
   MEDIA_URL: '/media/'
   STATIC_URL: '/static/'
+  PROTECTED_URL: '/protected_media/'
   COOKIE_PREFIX: 'kerrokantasi'
   DEMOCRACY_UI_BASE_URL: 'https://testikerrokantasi.turku.fi/'
   SENDFILE_BACKEND: 'sendfile.backends.simple'
-  PROTECTED_ROOT: '/var/www/kerrokantasi-back/var/protected_media'
-  PROTECTED_URL: '/protected_media/'
   LOGOUT_REDIRECT_URL: apiUrl
   DEFAULT_MAP_COORDINATES: '60.454510,22.264824'
   DEFAULT_MAP_ZOOM: 11
@@ -104,44 +105,6 @@ param uiAppSettings object = {
   ENABLE_RESPONSE_COMPRESSION: 'true'
   WMS_BASE_URL: 'https://opaskartta.turku.fi/TeklaOGCWeb/WMS.ashx'
   WMS_ATTRIBUTION: '<a href=\'https://opaskartta.turku.fi/\' rel=\'noreferrer\' target=\'_blank\'>Opaskartta</a>'
-
-  /* TODO: config_x.toml has these array values that the frontend loads with nconf. They can presumably be set using env variables. Determine the format.
-  [[wms_layers]]
-  layer_name="Asemakaava"
-  name_fi="Kaavakartta"
-  name_sv="Stadsplankarta"
-  name_en="Cityplan"
-
-  [[wms_layers]]
-  layer_name="Opaskartta"
-  name_fi="Opaskartta"
-  name_sv="Guidekarta"
-  name_en="Guidemap"
-
-  [[wms_layers]]
-  layer_name="Opaskartta mv"
-  name_fi="Opaskartta mv"
-  name_sv="Guidekarta s/v"
-  name_en="Guidemap b/w"
-
-  [[wms_layers]]
-  layer_name="Ilmakuva"
-  name_fi="Ilmakuva"
-  name_sv="Flygbild"
-  name_en="Air photo"
-
-  [[wms_layers]]
-  layer_name="Maastokartta"
-  name_fi="Maastokartta"
-  name_sv="Terrängkarta"
-  name_en="Terrain map"
-
-  [[wms_layers]]
-  layer_name="Turun kantakartta 1:1000"
-  name_fi="Turun kantakartta 1:1000"
-  name_sv="Turun kantakartta 1:1000"
-  name_en="Turun kantakartta 1:1000"
-  */
 }
 
 @allowed([
@@ -177,9 +140,7 @@ var webAppRequirements = [
     appSettings: {
       ...uiAppSettings
     }
-    fileshares: {
-      'files': '/var/www/kerrokantasi-back/var'
-    }
+    fileshares: {}
   }
 ]
 
@@ -514,7 +475,7 @@ resource dbConfigurationClientEncoding 'Microsoft.DBforPostgreSQL/flexibleServer
     value: 'UTF8'
     source: 'user-override'
   }
-  dependsOn: [waitForDbReady]
+  dependsOn: [waitForDbReadyAzureExtensionsConfigured]
 }
 
 resource dbConfigurationAzureExtensions 'Microsoft.DBforPostgreSQL/flexibleServers/configurations@2023-12-01-preview' = {
@@ -541,6 +502,7 @@ resource waitForDbReady 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
   name: 'waitForDbReady'
   location: location
   properties: {
+    forceUpdateTag: utcNowValue // Run this script every time
     azPowerShellVersion: '3.0'
     scriptContent: 'start-sleep -Seconds 300'
     cleanupPreference: 'Always'
@@ -549,7 +511,21 @@ resource waitForDbReady 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
   dependsOn: [db]
 }
 
-resource waitForDbReadyAndConfigured 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
+resource waitForDbReadyAzureExtensionsConfigured 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
+  kind: 'AzurePowerShell'
+  name: 'waitForDbReady2'
+  location: location
+  properties: {
+    forceUpdateTag: utcNowValue // Run this script every time
+    azPowerShellVersion: '3.0'
+    scriptContent: 'start-sleep -Seconds 300'
+    cleanupPreference: 'Always'
+    retentionInterval: 'PT1H'
+  }
+  dependsOn: [dbConfigurationAzureExtensions]
+}
+
+resource waitForDbReadyAndAllConfigured 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
   kind: 'AzurePowerShell'
   name: 'waitForDbReadyAndConfigured'
   location: location

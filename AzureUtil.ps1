@@ -1,5 +1,11 @@
 function Get-BicepParams($path) {
-    return ((az bicep build-params -f $path --stdout 2>$nul | ConvertFrom-Json).parametersJson | ConvertFrom-Json).parameters
+    $result = az bicep build-params -f $path --stdout
+    if ($LASTEXITCODE -eq 0) {
+        return (($result | ConvertFrom-Json).parametersJson | ConvertFrom-Json).parameters.PSObject.Properties | ForEach-Object -begin {$h=@{}} -process {$h."$($_.Name)" = $_.Value.value} -end {$h}
+    }
+    else {
+        Write-Error -Message "Error in .bicepparams file" -ErrorAction Stop
+    }
 }
 
 function Get-JsonParams($path) {
@@ -30,17 +36,16 @@ $env:RESOURCE_PREFIX = $resourceGroup
 $parameters = Get-BicepParams ./template.bicepparam
 
 function Get-FromParameters($key) {
-    return $parameters.$key.value
+    return $parameters.$key
 }
 
 $registry = Get-FromParameters containerRegistryName
 $apiImageName = Get-FromParameters apiImageName
-$tileserverImageName = Get-FromParameters tileserverImageName
 $uiImageName = Get-FromParameters uiImageName
 $apiWebAppName = Get-FromParameters apiWebAppName
-$tileserverWebAppName = Get-FromParameters tileserverWebAppName
 $uiWebAppName = Get-FromParameters uiWebAppName
 $db = Get-FromParameters dbServerName
+$dbAdminUser = Get-FromParameters dbAdminUsername
 $dbUser = Get-FromParameters dbUsername
 $dbDatabase = Get-FromParameters dbName
 $storage = Get-FromParameters storageAccountName
@@ -154,7 +159,6 @@ function Invoke-ImportAzureContainerImage($image, $source) {
 function Get-WebAppName($webApp) {
     switch ($webApp) {
         "api" { $apiWebAppName }
-        "tileserver" { $tileserverWebAppName }
         "ui" { $uiWebAppName }
         Default { $null }
     }
@@ -163,7 +167,6 @@ function Get-WebAppName($webApp) {
 function Get-ImageName($webApp) {
     switch ($webApp) {
         "api" { $apiImageName }
-        "tileserver" { $tileserverImageName }
         "ui" { $uiImageName }
         Default { $null }
     }
@@ -180,28 +183,28 @@ function Show-Usage {
     "Usage:"
     ""
     "./AzureUtil deploy"
-    "`tCreate a new resource group and deploy resources to it using template.bicep and parameters from parameters.json"
-    "./AzureUtil build [api|tileserver|ui] [path]"
+    "`tCreate a new resource group and deploy resources to it using template.bicep and parameters from template.bicepparam, and from secrets.json which is excluded from version control and can thus contain secrets"
+    "./AzureUtil build [api|ui] [path]"
     "`tBuild a new image in the WebApp's Azure container registry"
-    "./AzureUtil importimage [api|tileserver|ui] [docker.io/helsinki/tileserver-gl]"
+    "./AzureUtil importimage [api|ui] [docker.io/helsinki/tileserver-gl]"
     "`tImport an online image in the WebApp's Azure container registry"
-    "./AzureUtil log [api|tileserver|ui]"
+    "./AzureUtil log [api|ui]"
     "`tView the WebApp's log stream"
-    "./AzureUtil ssh [api|tileserver|ui]"
+    "./AzureUtil ssh [api|ui]"
     "`tAccess the WebApp's SSH, assuming one is set up in docker-entrypoint"
     "./AzureUtil db"
     "`tAccess Azure Postgres DB Flexible Server instance with psql"
     "./AzureUtil dbimport [dump.sql]"
     "`tImport a DB dump file to Azure Postgres DB Flexible Server instance with psql"
-    "./AzureUtil config [api|tileserver|ui]"
-    "`tShow the WebApp's environment variables in a .env file format"
-    "./AzureUtil config [api|tileserver|ui] setting1=value1 setting2=value2 ..."
+    "./AzureUtil config [api|ui]"
+    "`tShow the WebApp's environment variables in a .env file format, retrieving Key Vault secret references"
+    "./AzureUtil config [api|ui] setting1=value1 setting2=value2 ..."
     "`tAssign the given values in the WebApp's environment variables"
-    "./AzureUtil config delete [api|tileserver|ui] setting1 setting2 ..."
+    "./AzureUtil config delete [api|ui] setting1 setting2 ..."
     "`tDelete the given keys from the WebApp's environment variables"
-    "./AzureUtil files [apifiles|apidata|tileserver|ui] [path]"
+    "./AzureUtil files [apifiles|apidata|ui] [path]"
     "`tList files in the Azure Storage fileshare using a path"
-    "./AzureUtil copyfiles [apifiles|apidata|tileserver|ui] [d:/turku/remote/servicemap-test/bew/staticroot]"
+    "./AzureUtil copyfiles [apifiles|apidata|ui] [d:/turku/remote/servicemap-test/bew/staticroot]"
     "`tCopy files to the Azure Storage fileshare"
     "./AzureUtil param [dbName]"
     "`tShow a config value from parameters.json"

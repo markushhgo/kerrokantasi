@@ -20,6 +20,7 @@
 !requirements*
 !setup.cfg
 !package.json
+!sshd_config
 
 *.env
 .vscode

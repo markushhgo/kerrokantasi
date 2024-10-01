@@ -6,7 +6,8 @@ uwsgi:
   processes: 12
   threads: 1
   master: true
-  #uid: hauki
+  uid: kerrokantasi
+  gid: kerrokantasi
   umask: 022
   reload-on-rss: 300
   # Allow large image uploads
