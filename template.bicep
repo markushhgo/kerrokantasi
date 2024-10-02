@@ -52,7 +52,7 @@ param openIdApiTokenUrl string
 
 param apiAppSettings object = {
   SECRET_KEY: secretKey
-  ALLOWED_HOSTS: 'testikerrokantasi-api.turku.fi'
+  ALLOWED_HOSTS: '${apiUrl},${apiWebAppName}.azurewebsites.net,169.254.131.6' // TODO
   ADMINS: 'admin@anders.fi'
   TIER: 'prod'
   TRUST_X_FORWARDED_HOST: 'True'
@@ -121,7 +121,7 @@ var webAppRequirements = [
     name: apiWebAppName
     image: apiImageName
     allowKeyvaultSecrets: true
-    applicationGatewayAccessOnly: false
+    applicationGatewayAccessOnly: true
     appSettings: {
       DATABASE_URL: '@Microsoft.KeyVault(VaultName=${keyvault.name};SecretName=${keyvault::dbUrlSecret.name})'
       CACHE_URL: '@Microsoft.KeyVault(VaultName=${keyvault.name};SecretName=${keyvault::cacheUrlSecret.name})'
@@ -135,7 +135,7 @@ var webAppRequirements = [
     name: uiWebAppName
     image: uiImageName
     allowKeyvaultSecrets: false
-    applicationGatewayAccessOnly: false
+    applicationGatewayAccessOnly: true
     appSettings: {
       ...uiAppSettings
     }
