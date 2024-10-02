@@ -93,7 +93,6 @@ param uiAppSettings object = {
   OPENID_AUDIENCE: openIdAudience
   OPENID_AUTHORITY: openIdAuthority
   OPENID_APITOKEN_URL: openIdApiTokenUrl
-  CITY_CONFIG: 'kerrokantasi-ui-turku'
   SHOW_ACCESSIBILITY_INFO: 'true'
   SHOW_SOCIAL_MEDIA_SHARING: 'false'
   ENABLE_HIGHCONTRAST: 'true'
