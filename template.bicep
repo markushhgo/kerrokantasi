@@ -53,6 +53,7 @@ param openIdApiTokenUrl string
 param apiAppSettings object = {
   SECRET_KEY: secretKey
   ALLOWED_HOSTS: '${apiUrl},${apiWebAppName}.azurewebsites.net,169.254.131.6' // TODO
+  CSRF_TRUSTED_ORIGINS: 'https://${apiUrl}'
   ADMINS: 'admin@anders.fi'
   TIER: 'prod'
   TRUST_X_FORWARDED_HOST: 'True'
@@ -66,7 +67,7 @@ param apiAppSettings object = {
   COOKIE_PREFIX: 'kerrokantasi'
   DEMOCRACY_UI_BASE_URL: 'https://testikerrokantasi.turku.fi/'
   SENDFILE_BACKEND: 'sendfile.backends.simple'
-  LOGOUT_REDIRECT_URL: apiUrl
+  LOGOUT_REDIRECT_URL: 'https://${apiUrl}'
   DEFAULT_MAP_COORDINATES: '60.454510,22.264824'
   DEFAULT_MAP_ZOOM: 11
   EMAIL_URL: 'smtp://smtp.turku.fi:25'
@@ -85,7 +86,7 @@ param apiAppSettings object = {
 }
 
 param uiAppSettings object = {
-  KERROKANTASI_API_BASE: apiUrl
+  KERROKANTASI_API_BASE: 'https://${apiUrl}'
   HERO_IMAGE_URL: 'https://www.turku.fi/sites/default/files/thumbnails/image/kesarauha.jpg'
   PUBLIC_URL: uiUrl
   EXPRESSJS_SESSION_SECRET: expressJsSessionSecret
